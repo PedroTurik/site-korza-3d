@@ -1,0 +1,9 @@
+---
+/** Korza logo — real vector traced from the brand deck (public/brand). */
+interface Props { class?: string; variant?: 'default' | 'white'; height?: number; markOnly?: boolean }
+const { class: cls = '', variant = 'default', height = 28, markOnly = false } = Astro.props;
+const src = markOnly ? '/brand/korza-mark.svg' : variant === 'white' ? '/brand/korza-logo-white.svg' : '/brand/korza-logo.svg';
+const ratio = markOnly ? 672 / 583 : 2411 / 426;
+const w = Math.round(height * ratio);
+---
+<img src={src} alt="Korza" width={w} height={height} class={cls} decoding="async" style={`height:${height}px;width:auto`} />

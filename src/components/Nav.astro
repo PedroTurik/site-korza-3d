@@ -1,0 +1,97 @@
+---
+import { site } from '../data/site';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+---
+<header class="nav" id="topo" data-nav>
+  <div class="container nav__in">
+    <a href="#hero" class="nav__logo" aria-label="Korza — início"><Logo height={22} /></a>
+    <nav class="nav__links" aria-label="Principal">
+      {site.nav.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+    <div class="nav__actions">
+      <a class="btn btn--navy btn--sm nav__login" href={site.login}>Login</a>
+      <a class="btn btn--primary btn--sm" href={site.cta}>{site.ctaLabel}<Icon name="arrow" class="arrow" /></a>
+      <button class="nav__burger" type="button" aria-expanded="false" aria-controls="menu-mobile" aria-label="Abrir menu" data-burger>
+        <Icon name="menu" class="i-open" /><Icon name="close" class="i-close" />
+      </button>
+    </div>
+  </div>
+  <span class="nav__progress" aria-hidden="true" data-progress></span>
+  <div class="nav__mobile" id="menu-mobile" data-mobile hidden>
+    <nav aria-label="Principal (mobile)">
+      {site.nav.map((l) => <a href={l.href}>{l.label}</a>)}
+      <a href={site.login}>Login</a>
+    </nav>
+    <a class="btn btn--primary btn--lg" href={site.cta}>{site.ctaLabel}<Icon name="arrow" class="arrow" /></a>
+  </div>
+</header>
+
+<style>
+  .nav { position: sticky; top: 0; z-index: 50; background: rgb(255 255 255 / 0.8); -webkit-backdrop-filter: saturate(160%) blur(14px); backdrop-filter: saturate(160%) blur(14px); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+  .nav.is-scrolled { border-color: var(--line); }
+  .nav__in { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; height: 4.5rem; }
+  .nav__logo { display: inline-flex; align-items: center; }
+  .nav__links { display: none; gap: 2rem; }
+  .nav__links a { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-600); transition: color 0.2s; }
+  .nav__links a { position: relative; padding-bottom: 0.2rem; }
+  .nav__links a::after { content: ''; position: absolute; left: 0; right: 0; bottom: -0.15rem; height: 1px; background: var(--blue); transform: scaleX(0); transform-origin: left; transition: transform 0.4s var(--ease); }
+  .nav__links a:hover { color: var(--blue); }
+  .nav__links a[aria-current="true"] { color: var(--blue); }
+  .nav__links a[aria-current="true"]::after { transform: scaleX(1); }
+  .nav__progress { position: absolute; left: 0; bottom: -1px; height: 1px; width: 100%; background: var(--blue); transform: scaleX(0); transform-origin: left; pointer-events: none; }
+  /* progress is driven by JS: lightningcss folds `animation-timeline` into the `animation` shorthand, which Chrome rejects. */
+  @media (prefers-reduced-motion: reduce) { .nav__progress { display: none; } }
+  .nav__actions { display: flex; align-items: center; gap: 0.5rem; }
+  .nav__login { display: none; }
+  .nav__burger { display: inline-grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); }
+  .nav__burger :global(.i-close) { display: none; }
+  .nav__burger[aria-expanded="true"] :global(.i-open) { display: none; }
+  .nav__burger[aria-expanded="true"] :global(.i-close) { display: block; }
+  .nav__mobile[hidden] { display: none; }
+  .nav__mobile { border-top: 1px solid var(--line); padding: 1rem var(--gutter) 1.5rem; display: grid; gap: 1rem; background: #fff; }
+  .nav__mobile nav { display: grid; }
+  .nav__mobile nav a { padding: 0.9rem 0.25rem; font-weight: 500; font-size: 1.0625rem; border-bottom: 1px solid var(--line); }
+  @media (min-width: 64em) { .nav__links { display: flex; } .nav__login { display: inline-flex; } .nav__burger, .nav__mobile { display: none !important; } }
+</style>
+
+<script>
+  const nav = document.querySelector<HTMLElement>('[data-nav]')!;
+  const burger = nav.querySelector<HTMLButtonElement>('[data-burger]')!;
+  const mobile = nav.querySelector<HTMLElement>('[data-mobile]')!;
+  const bar = nav.querySelector<HTMLElement>('[data-progress]')!;
+  let raf = 0;
+  const onScroll = () => {
+    nav.classList.toggle('is-scrolled', window.scrollY > 8);
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => {
+      const max = document.documentElement.scrollHeight - innerHeight;
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+    });
+  };
+  onScroll(); addEventListener('scroll', onScroll, { passive: true });
+
+  // active section → aria-current on the matching desktop link
+  const links = Array.from(nav.querySelectorAll<HTMLAnchorElement>('.nav__links a[href^="#"]'));
+  const targets = links.map((a) => document.querySelector<HTMLElement>(a.hash)).filter((el): el is HTMLElement => !!el);
+  if ('IntersectionObserver' in window && targets.length) {
+    const visible = new Map<Element, number>();
+    const setActive = () => {
+      let best: Element | null = null, bestRatio = 0;
+      visible.forEach((r, el) => { if (r > bestRatio) { bestRatio = r; best = el; } });
+      links.forEach((a) => { if (best && a.hash === `#${(best as HTMLElement).id}`) a.setAttribute('aria-current', 'true'); else a.removeAttribute('aria-current'); });
+    };
+    const so = new IntersectionObserver((entries) => {
+      for (const e of entries) { if (e.isIntersecting) visible.set(e.target, e.intersectionRatio); else visible.delete(e.target); }
+      setActive();
+    }, { rootMargin: '-35% 0px -45% 0px', threshold: [0, 0.1, 0.25, 0.5, 0.75, 1] });
+    targets.forEach((t) => so.observe(t));
+  }
+  const setOpen = (open: boolean) => {
+    burger.setAttribute('aria-expanded', String(open)); burger.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    mobile.hidden = !open; document.body.style.overflow = open ? 'hidden' : '';
+  };
+  burger.addEventListener('click', () => setOpen(mobile.hidden));
+  mobile.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('a')) setOpen(false); });
+  addEventListener('keydown', (e) => { if (e.key === 'Escape' && !mobile.hidden) setOpen(false); });
+</script>

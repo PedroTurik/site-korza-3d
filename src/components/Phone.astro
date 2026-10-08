@@ -1,0 +1,34 @@
+---
+/**
+ * CSS phone frame. Slot in an <img> (or several, for a crossfade). Aspect 9:19.5.
+ */
+interface Props { class?: string; width?: string; alt?: string }
+const { class: cls = '', width = '18rem' } = Astro.props;
+---
+<div class={`phone ${cls}`} style={`--pw:${width}`}>
+  <div class="phone__frame">
+    <div class="phone__screen"><slot /></div>
+    <div class="phone__island" aria-hidden="true"></div>
+  </div>
+</div>
+
+<style>
+  .phone { width: var(--pw); max-width: 100%; }
+  .phone__frame {
+    position: relative; aspect-ratio: 9 / 19.3; border-radius: calc(var(--pw) * 0.155);
+    background: #0a0c12; padding: calc(var(--pw) * 0.028);
+    box-shadow:
+      inset 0 0 0 1.5px rgb(255 255 255 / 0.18),
+      inset 0 0 0 4px #1a1d26,
+      0 30px 60px -20px rgb(11 15 25 / 0.45), 0 10px 20px -10px rgb(11 15 25 / 0.2);
+  }
+  .phone__screen {
+    position: absolute; inset: calc(var(--pw) * 0.028); border-radius: calc(var(--pw) * 0.13); overflow: hidden; background: #fff;
+    isolation: isolate;
+  }
+  .phone__screen :global(img) { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+  .phone__island {
+    position: absolute; top: calc(var(--pw) * 0.065); left: 50%; translate: -50% 0;
+    width: calc(var(--pw) * 0.3); height: calc(var(--pw) * 0.085); border-radius: 999px; background: #0a0c12;
+  }
+</style>

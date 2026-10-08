@@ -1,0 +1,150 @@
+---
+import { recompra } from '../data/content';
+import Icon from './Icon.astro';
+/* ILUSTRATIVO — taxa de abertura média por canal */
+const openRates = [
+  { label: 'App (push)', v: 42 },
+  { label: 'WhatsApp', v: 32 },
+  { label: 'E-mail', v: 21 },
+];
+const max = Math.max(...openRates.map((b) => b.v));
+const paths = [
+  { label: 'App', taps: '1 toque', steps: [{ icon: 'bell', t: 'push' }, { icon: 'tag', t: 'produto' }] },
+  { label: 'WhatsApp', taps: '2 toques', steps: [{ icon: 'phone', t: 'mensagem' }, { icon: 'layout', t: 'navegador' }, { icon: 'tag', t: 'produto' }] },
+  { label: 'E-mail', taps: '2 a 3 toques', steps: [{ icon: 'menu', t: 'caixa de entrada' }, { icon: 'layout', t: 'e-mail' }, { icon: 'store', t: 'site' }, { icon: 'tag', t: 'produto' }] },
+] as const;
+const STEP_MS = 520;
+const stats = recompra.stats.slice(0, 2);
+---
+<section class="rec section" id="recompra" aria-labelledby="rec-title" data-s3="recompra" data-scene>
+  <div class="container">
+    <div class="rec__top">
+      <div class="rec__copy">
+        <p class="eyebrow eyebrow--light" data-reveal>Canal de recompra</p>
+        <h2 class="h2" id="rec-title" data-reveal style="--d:60ms">E-mail e WhatsApp funcionam.<br /><span class="rec__dim">Até certo ponto.</span></h2>
+        <p class="lead" data-reveal style="--d:120ms">No app, a oferta aparece na tela do celular e a compra acontece em um toque.</p>
+      </div>
+
+      <figure class="rec__chart" data-reveal style="--d:120ms">
+        <figcaption class="label">Taxa de abertura média por canal</figcaption>
+        <div class="bars" role="img" aria-label={`Taxa de abertura média: app ${openRates[0].v}%, WhatsApp ${openRates[1].v}%, e-mail ${openRates[2].v}%`}>
+          <div class="bars__slot" data-slot="bars" aria-hidden="true">
+            {openRates.map((b, i) => (
+              <div class="bar" style={`--h:${b.v / max}; --d:${i * 140}ms`}>
+                <div class="bar__fill grow"></div>
+                <span class="bar__val"><b data-count={b.v} data-delay={i * 140 + 150}>{b.v}</b>%</span>
+              </div>
+            ))}
+          </div>
+          <div class="bars__labels" aria-hidden="true">{openRates.map((b) => <span class="bar__label">{b.label}</span>)}</div>
+        </div>
+      </figure>
+    </div>
+
+    <div class="rec__bottom">
+      <ul class="rec__stats">
+        {stats.map((s, i) => {
+          const m = s.value.match(/^([^\d]*)(\d+)(.*)$/)!;
+          return (
+            <li data-reveal style={`--d:${i * 80}ms`}>
+              <strong class="num">{m[1]}<span data-count={m[2]} data-delay={200 + i * 120}>{m[2]}</span>{m[3]}</strong>
+              <span>{s.label}</span>
+              <small>{s.note}</small>
+            </li>
+          );
+        })}
+      </ul>
+
+      <figure class="path" data-reveal style="--d:160ms">
+        <figcaption class="label">Caminho até o produto</figcaption>
+        <div class="path__rows" role="img" aria-label="No app, do push até o produto é um toque. No WhatsApp, dois: mensagem, navegador, produto. No e-mail, de dois a três: caixa de entrada, e-mail, site, produto.">
+          {paths.map((p, r) => {
+            const n = p.steps.length; const base = r * 220;
+            return (
+              <div class="row" style={`--n:${n}; --dur:${(n - 1) * STEP_MS}ms; --d:${base}ms`}>
+                <span class="row__label">{p.label}</span>
+                <div class="row__track">
+                  <svg class="row__line" viewBox="0 0 100 2" preserveAspectRatio="none" aria-hidden="true"><path class="draw" pathLength="1" d="M0 1H100" style={`--d:${base}ms`} /></svg>
+                  <i class="row__cursor" aria-hidden="true"></i>
+                  {p.steps.map((s, i) => (
+                    <span class={`node pop ${i === n - 1 ? 'node--end' : ''}`} style={`--x:${(i / (n - 1)) * 100}%; --d:${base + i * STEP_MS}ms`}>
+                      <Icon name={s.icon} size={13} /><em>{s.t}</em>
+                    </span>
+                  ))}
+                </div>
+                <b class="row__taps">{p.taps}</b>
+              </div>
+            );
+          })}
+        </div>
+        <p class="path__foot small">{recompra.foot}</p>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<style>
+  .rec { background: var(--ink); color: #fff; padding-bottom: calc(var(--section-y) * 0.75); }
+  .rec__top { display: grid; gap: 3rem; align-items: end; }
+  @media (min-width: 64em) { .rec__top { grid-template-columns: 1.1fr 0.9fr; gap: 5rem; } }
+  .rec__copy { display: grid; gap: 1.5rem; }
+  .rec__dim { color: rgb(255 255 255 / 0.45); }
+  .rec__copy .lead { color: rgb(255 255 255 / 0.72); max-width: 32rem; }
+  .label { color: rgb(255 255 255 / 0.6); }
+
+  .rec__chart { display: grid; gap: 1.25rem; margin: 0; }
+  .bars { display: grid; gap: 0.75rem; }
+  .bars__slot { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; height: 17rem; align-items: end; }
+  .bar { position: relative; height: 100%; display: grid; align-items: end; }
+  .bar__fill { height: calc(var(--h) * 92%); background: var(--blue); }
+  .bar:nth-child(2) .bar__fill { background: rgb(255 255 255 / 0.22); }
+  .bar:nth-child(3) .bar__fill { background: rgb(255 255 255 / 0.12); }
+  html.has-gl .bar__fill { visibility: hidden; }
+  .bar__val { position: absolute; left: 0; bottom: calc(var(--h) * 92% + 0.6rem); font-size: clamp(1.5rem, 1rem + 1.6vw, 2.25rem); font-weight: 500; letter-spacing: var(--track); line-height: 1; opacity: 0; transition: opacity 0.5s var(--ease); transition-delay: calc(var(--d) + 500ms); }
+  .bar__val b { font-weight: 500; }
+  .bar:nth-child(n + 2) .bar__val { color: rgb(255 255 255 / 0.7); }
+  .is-on .bar__val { opacity: 1; }
+  .bars__labels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .bar__label { font-size: var(--fs-small); font-weight: 500; color: rgb(255 255 255 / 0.8); }
+
+  .rec__bottom { display: grid; gap: 2.5rem; margin-top: clamp(3rem, 6vw, 5.5rem); border-top: 1px solid rgb(255 255 255 / 0.14); padding-top: clamp(2rem, 4vw, 3rem); }
+  @media (min-width: 64em) { .rec__bottom { grid-template-columns: 1fr 1.25fr; gap: 5rem; } }
+  .rec__stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; align-content: start; }
+  .rec__stats li { display: grid; gap: 0.35rem; }
+  .rec__stats .num { font-size: clamp(2.75rem, 1.4rem + 3.2vw, 4.75rem); white-space: nowrap; }
+  .rec__stats li > span { font-size: 1.0625rem; font-weight: 500; margin-top: 0.5rem; }
+  .rec__stats small { color: rgb(255 255 255 / 0.55); font-size: var(--fs-small); }
+
+  .path { display: grid; gap: 1.25rem; margin: 0; }
+  .path__rows { display: grid; gap: 1rem; }
+  .row { display: grid; grid-template-columns: 5rem 1fr auto; align-items: center; gap: 1rem; min-height: 3.5rem; }
+  .row__label { font-size: var(--fs-small); font-weight: 500; color: rgb(255 255 255 / 0.85); }
+  .row__track { position: relative; height: 3.25rem; margin-inline: 0.9rem; }
+  .row__line { position: absolute; left: 0; right: 0; top: 0.9rem; width: 100%; height: 2px; overflow: visible; }
+  .row__line path { stroke: rgb(255 255 255 / 0.22); stroke-width: 2; vector-effect: non-scaling-stroke; }
+  .node { position: absolute; left: var(--x); top: 0; translate: -50% 0; display: grid; justify-items: center; gap: 0.35rem; }
+  .node :global(svg) { width: 1.8rem; height: 1.8rem; padding: 0.4rem; box-sizing: border-box; border-radius: 50%; background: var(--ink); border: 1px solid rgb(255 255 255 / 0.3); color: rgb(255 255 255 / 0.8); position: relative; z-index: 1; }
+  .node--end :global(svg) { background: var(--blue); border-color: var(--blue); color: #fff; }
+  .node em { font-style: normal; font-size: 0.62rem; color: rgb(255 255 255 / 0.55); white-space: nowrap; letter-spacing: 0.01em; }
+  .row__cursor { position: absolute; top: 0.9rem; left: 0; width: 0.7rem; height: 0.7rem; margin: -0.35rem; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px rgb(21 93 252 / 0.45); z-index: 2; opacity: 0; transition: left var(--dur) linear, opacity 0.3s; transition-delay: var(--d), var(--d); }
+  .is-on .row__cursor { left: 100%; opacity: 1; animation: cursor-off 0.4s var(--ease) forwards; animation-delay: calc(var(--d) + var(--dur) + 500ms); }
+  @keyframes cursor-off { to { opacity: 0; } }
+  .row__taps { font-weight: 500; font-size: 1.0625rem; letter-spacing: var(--track-snug); white-space: nowrap; color: rgb(255 255 255 / 0.5); transition: color 0.4s; transition-delay: calc(var(--d) + var(--dur)); }
+  .is-on .row:first-child .row__taps { color: #fff; }
+  .path__foot { color: rgb(255 255 255 / 0.6); }
+
+  @media (prefers-reduced-motion: reduce) { .row__cursor { display: none; } .bar__val { opacity: 1; } .row__taps { color: #fff; } }
+  :global(.no-js) .bar__val { opacity: 1; }
+  @media (max-width: 48em) {
+    .bars__slot { height: 13rem; gap: 0.75rem; }
+    .bars__labels { gap: 0.75rem; }
+    .rec__stats { gap: 1.25rem; }
+    .rec__stats .num { font-size: clamp(2.5rem, 12vw, 3.25rem); }
+    .rec__stats li > span { font-size: 0.95rem; }
+    .row { grid-template-columns: 1fr auto; grid-template-areas: 'label taps' 'track track'; gap: 0.5rem 1rem; min-height: 0; padding-bottom: 0.5rem; }
+    .row__label { grid-area: label; }
+    .row__track { grid-area: track; margin-inline: 2.6rem 1.6rem; }
+    .row__taps { grid-area: taps; font-size: 0.95rem; }
+    .node em { font-size: 0.58rem; }
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import { faq } from '../data/content';
+import Icon from './Icon.astro';
+---
+<section class="faq section" id="faq" aria-labelledby="faq-title">
+  <div class="container faq__in">
+    <div class="section-head">
+      <p class="eyebrow" data-reveal>{faq.eyebrow}</p>
+      <h2 class="h2" id="faq-title" data-reveal style="--d:60ms">Dúvidas antes<br />de <span class="accent">lançar.</span></h2>
+    </div>
+    <div class="faq__list" data-reveal style="--d:120ms">
+      {faq.items.map(([q, a], i) => (
+        <details class="faq__item" name="faq" open={i === 0 ? true : undefined}>
+          <summary><span class="faq__n">{String(i + 1).padStart(2, '0')}</span><h3>{q}</h3><span class="faq__icon" aria-hidden="true"><Icon name="plus" size={18} /></span></summary>
+          <div class="faq__body"><p>{a}</p></div>
+        </details>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq__in { display: grid; gap: 2.5rem; }
+  @media (min-width: 64em) { .faq__in { grid-template-columns: 0.8fr 1.2fr; gap: 5rem; align-items: start; } .faq .section-head { position: sticky; top: 6rem; } }
+  .faq__list { border-top: 1px solid var(--line); }
+  .faq__item { border-bottom: 1px solid var(--line); }
+  .faq__item summary { display: grid; grid-template-columns: 2.5rem 1fr auto; align-items: center; gap: 1rem; padding: 1.4rem 0; cursor: pointer; list-style: none; }
+  .faq__item summary::-webkit-details-marker { display: none; }
+  .faq__n { font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.06em; color: var(--blue); }
+  .faq__item h3 { font-size: 1.125rem; font-weight: 500; letter-spacing: var(--track-snug); }
+  .faq__icon { display: grid; place-items: center; width: 2rem; height: 2rem; color: var(--ink); transition: transform 0.35s var(--ease), color 0.3s; }
+  .faq__item[open] .faq__icon { transform: rotate(45deg); color: var(--blue); }
+  .faq__body { padding: 0 3rem 1.5rem 3.5rem; color: var(--ink-600); line-height: 1.65; max-width: 44rem; }
+  .faq__item[open] .faq__body { animation: fade 0.35s var(--ease); }
+  @keyframes fade { from { opacity: 0; transform: translateY(-4px); } }
+  @media (max-width: 40em) { .faq__body { padding-left: 0; padding-right: 0; } .faq__item summary { grid-template-columns: 1fr auto; } .faq__n { display: none; } }
+</style>

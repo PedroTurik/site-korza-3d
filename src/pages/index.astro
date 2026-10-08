@@ -1,0 +1,36 @@
+---
+import Base from '../layouts/Base.astro';
+import { seo, jsonLd } from '../data/content';
+import Nav from '../components/Nav.astro';
+import Hero from '../components/Hero.astro';
+import Brands from '../components/Brands.astro';
+import Launch from '../components/Launch.astro';
+import Recompra from '../components/Recompra.astro';
+import Aop from '../components/Aop.astro';
+import Features from '../components/Features.astro';
+import Dashboard from '../components/Dashboard.astro';
+import Cases from '../components/Cases.astro';
+import Testimonials from '../components/Testimonials.astro';
+import Pricing from '../components/Pricing.astro';
+import Faq from '../components/Faq.astro';
+import CtaBand from '../components/CtaBand.astro';
+import Footer from '../components/Footer.astro';
+---
+<Base title={seo.title} description={seo.description} jsonLd={jsonLd}>
+  <Nav />
+  <main id="conteudo">
+    <Hero />
+    <Brands />
+    <Launch />
+    <Recompra />
+    <Aop />
+    <Features />
+    <Dashboard />
+    <Cases />
+    <Testimonials />
+    <Pricing />
+    <Faq />
+    <CtaBand />
+  </main>
+  <Footer />
+</Base>

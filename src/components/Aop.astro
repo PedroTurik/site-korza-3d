@@ -1,0 +1,105 @@
+---
+import { aop } from '../data/content';
+import Phone from './Phone.astro';
+/* ILUSTRATIVO — taxa de download da base com e sem oferta exclusiva no app. */
+const why = { rows: [{ label: 'Sem oferta', pct: 4, on: false }, { label: 'Com oferta no app', pct: 23, on: true }] };
+---
+<section class="aop pin" id="metodo-aop" data-s3="aop" style="--len:3" data-active="0" aria-labelledby="aop-title">
+  <div class="pin__stage stage--paper">
+    <div class="container aop__in">
+      <div class="aop__copy">
+        <p class="eyebrow" data-reveal>{aop.eyebrow}</p>
+        <h2 class="h2" id="aop-title" data-reveal style="--d:60ms">O método que faz <span class="accent">o app vender.</span></h2>
+        <p class="lead aop__intro" data-reveal style="--d:120ms">{aop.intro}</p>
+
+        <ol class="aop__cards" data-reveal style="--d:160ms">
+          {aop.cards.map((c, i) => (
+            <li class="aopc" data-card={i}>
+              <span class="aopc__letter" aria-hidden="true">{c.letter}</span>
+              <div class="aopc__body">
+                <h3 class="aopc__title">{c.letter}{c.title}</h3>
+                <p>{c.text}</p>
+                <div class="aopc__extra">
+                  {i === 0 && <p class="aopc__note">Cada ponto é um cliente da sua loja. O app é o canal; sem ele, nada migra.</p>}
+                  {i === 1 && (
+                    <div class="why">
+                      <div class="why__toggle" role="group" aria-label="Comparar taxa de download">
+                        {why.rows.map((r) => <button type="button" class="why__btn" data-offer={r.on ? '1' : '0'} aria-pressed={r.on ? 'false' : 'true'}><b><span data-count={r.pct}>{r.pct}</span>%</b><span>{r.label}</span></button>)}
+                      </div>
+                      <p class="aopc__note">O cliente precisa de um motivo para baixar. A oferta é o motivo.</p>
+                    </div>
+                  )}
+                  {i === 2 && <p class="aopc__note">Campanhas ilimitadas, cada uma abrindo um link da loja. Quem migrou, recompra em um toque.</p>}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <div class="slot aop__slot" data-slot="aop" aria-hidden="true">
+        <div class="aop__site gl-only"><span class="label">Base da loja</span><b>3.400 clientes</b><small>no site, no e-mail, no WhatsApp</small></div>
+        <div class="slot__fb aop__fb"><Phone width="min(13rem, 42vw)"><img src="/screens/loum.webp" alt="" width="640" height="982" loading="lazy" decoding="async" /></Phone></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .aop__in { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 1rem; height: 100%; padding-block: 0.5rem 1.25rem; }
+  .aop__copy { display: grid; gap: 1rem; align-content: center; min-width: 0; }
+  .aop__intro { max-width: 30rem; }
+  .aop__cards { display: grid; }
+  .aopc { display: grid; grid-template-columns: 3.5rem 1fr; gap: 0.75rem; padding: 0.9rem 0; border-top: 1px solid var(--line); opacity: 0.4; transition: opacity 0.5s var(--ease); }
+  .aopc__letter { font-size: 2.75rem; font-weight: 500; line-height: 0.85; letter-spacing: -0.05em; color: var(--ink-400); transition: color 0.5s; }
+  .aopc__body { display: grid; gap: 0.3rem; }
+  .aopc__title { font-size: 1.2rem; font-weight: 500; letter-spacing: var(--track-snug); line-height: 1.1; }
+  .aopc__title::first-letter { font-weight: 600; }
+  .aopc p { color: var(--ink-600); font-size: 0.95rem; max-width: 26rem; }
+  .aopc__extra { display: grid; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.6s var(--ease), opacity 0.5s var(--ease), margin 0.5s; }
+  .aop[data-active="0"] .aopc[data-card="0"], .aop[data-active="1"] .aopc[data-card="1"], .aop[data-active="2"] .aopc[data-card="2"] { opacity: 1; }
+  .aop[data-active="0"] .aopc[data-card="0"] .aopc__letter, .aop[data-active="1"] .aopc[data-card="1"] .aopc__letter, .aop[data-active="2"] .aopc[data-card="2"] .aopc__letter { color: var(--blue); }
+  .aop[data-active="0"] .aopc[data-card="0"] .aopc__extra, .aop[data-active="1"] .aopc[data-card="1"] .aopc__extra, .aop[data-active="2"] .aopc[data-card="2"] .aopc__extra { max-height: 9rem; opacity: 1; margin-top: 0.5rem; }
+  .aopc__note { font-size: var(--fs-small) !important; color: var(--ink-500) !important; }
+  .why { display: grid; gap: 0.6rem; }
+  .why__toggle { display: flex; gap: 0.5rem; }
+  .why__btn { display: grid; gap: 0.1rem; justify-items: start; padding: 0.6rem 0.8rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); min-width: 8.5rem; text-align: left; transition: border-color 0.25s, background 0.25s, color 0.25s; }
+  .why__btn b { font-size: 1.5rem; font-weight: 500; letter-spacing: var(--track); line-height: 1; }
+  .why__btn > span { font-size: 0.72rem; color: var(--ink-500); }
+  .why__btn[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-50); color: var(--blue-700); }
+  .why__btn[aria-pressed="true"] > span { color: var(--blue-700); }
+
+  .aop__slot { min-height: 14rem; }
+  .aop__site { position: absolute; left: 4%; bottom: 8%; display: grid; gap: 0.15rem; font-size: var(--fs-small); }
+  .aop__site .label { color: var(--ink-500); }
+  .aop__site b { font-weight: 500; font-size: 1.1rem; letter-spacing: var(--track-snug); }
+  .aop__site small { color: var(--ink-400); font-size: 0.72rem; }
+  .aop__fb { justify-items: end; padding-right: 8%; }
+
+  @media (min-width: 64em) {
+    .aop__in { grid-template-columns: 0.9fr 1.1fr; grid-template-rows: 1fr; gap: 3rem; }
+    .aopc { padding: 1rem 0; }
+  }
+  @media (max-width: 63.99em) {
+    .aop__slot { order: -1; min-height: 36svh; }
+    .aop__copy { gap: 0.6rem; }
+    .aop__copy .h2 { font-size: clamp(1.6rem, 6.5vw, 2.2rem); }
+    .aop__intro { display: none; }
+    .aopc { display: none; border-top: 0; padding: 0.25rem 0; grid-template-columns: 2.6rem 1fr; }
+    .aop[data-active="0"] .aopc[data-card="0"], .aop[data-active="1"] .aopc[data-card="1"], .aop[data-active="2"] .aopc[data-card="2"] { display: grid; }
+    .aopc__letter { font-size: 2.2rem; }
+    .aopc p { font-size: 0.88rem; }
+    .aop__site { left: 2%; bottom: 2%; }
+    .aop__site b { font-size: 0.95rem; }
+    .aopc__note { display: none !important; }
+    .why__btn { min-width: 7rem; padding: 0.45rem 0.6rem; }
+    .why__btn b { font-size: 1.2rem; }
+  }
+  :global(html.no-gl) .aop { height: auto; }
+  :global(html.no-gl) .aop .pin__stage { position: static; height: auto; overflow: visible; padding-top: 0; }
+  :global(html.no-gl) .aop__in { padding-block: var(--section-y); }
+  :global(html.no-gl) .aopc { display: grid; opacity: 1; }
+  :global(html.no-gl) .aopc__letter { color: var(--blue); }
+  :global(html.no-gl) .aopc__extra { max-height: none; opacity: 1; margin-top: 0.5rem; }
+  :global(html.no-gl) .aop__slot { min-height: 24rem; order: 0; }
+</style>

@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+---
+<Base title="Política de privacidade | Korza" description="Como a Korza trata os dados coletados neste site: cookies de analytics, consentimento e seus direitos sob a LGPD." canonical="https://www.korza.com.br/privacidade">
+  <Nav />
+  <main id="conteudo" class="section">
+    <article class="container legal">
+      <p class="eyebrow">Legal</p>
+      <h1 class="h2">Política de privacidade</h1>
+      <p class="muted small">Última atualização: outubro de 2026</p>
+      <h2>Quem somos</h2>
+      <p>Este site é operado por {site.legalName}, CNPJ {site.cnpj} ("Korza"). Esta política descreve como tratamos dados pessoais coletados em <strong>www.korza.com.br</strong>.</p>
+      <h2>Dados que coletamos neste site</h2>
+      <p>Este site não possui formulários. Coletamos apenas dados de navegação, por meio do Google Analytics 4, e somente após o seu consentimento: páginas visitadas, origem do acesso, tipo de dispositivo e eventos de clique em botões. O endereço IP é anonimizado.</p>
+      <h2>Cookies e consentimento</h2>
+      <p>Os cookies de analytics ficam desativados até que você aceite no aviso exibido na primeira visita. Você pode recusar sem prejuízo ao uso do site e alterar a escolha limpando os dados do navegador.</p>
+      <h2>Conta na plataforma</h2>
+      <p>Ao criar uma conta em <strong>admin.korza.app</strong>, o tratamento de dados passa a ser regido pelos termos e pela política de privacidade da plataforma Korza, apresentados no cadastro.</p>
+      <h2>Seus direitos</h2>
+      <p>Nos termos da Lei Geral de Proteção de Dados (Lei 13.709/2018), você pode solicitar confirmação, acesso, correção, anonimização, portabilidade ou eliminação dos seus dados, e revogar o consentimento. Fale conosco pelos canais indicados em nossas redes sociais ou pelo suporte da plataforma.</p>
+      <h2>Alterações</h2>
+      <p>Esta política pode ser atualizada. A data da última revisão aparece no topo da página.</p>
+    </article>
+  </main>
+  <Footer />
+</Base>
+<style>
+  .legal { max-width: 44rem; display: grid; gap: 1rem; }
+  .legal h2 { font-size: 1.25rem; font-weight: 700; letter-spacing: var(--tracking-snug); margin-top: 1.25rem; }
+  .legal p { color: var(--ink-600); }
+</style>

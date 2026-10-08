@@ -1,0 +1,112 @@
+---
+import { site } from '../data/site';
+import { hero } from '../data/content';
+import Icon from './Icon.astro';
+import Phone from './Phone.astro';
+import StoreBadges from './StoreBadges.astro';
+const [b1, b2] = ['No bolso de quem', 'já compra de você.'];
+---
+<section class="hero pin" id="hero" data-s3="hero" style="--len:2.1" aria-labelledby="hero-title">
+  <div class="pin__stage stage--paper">
+    <div class="hero__bg" aria-hidden="true"></div>
+    <div class="container hero__in">
+      <div class="hero__copy">
+        <p class="eyebrow rise">{hero.badge}</p>
+        <h1 class="h1" id="hero-title">
+          <span class="clip" style="--d:120ms"><span>{hero.h1a}</span></span>
+          <span class="clip accent" style="--d:200ms"><span>{b1}</span></span>
+          <span class="clip accent" style="--d:280ms"><span>{b2}</span></span>
+        </h1>
+        <p class="lead hero__sub rise" style="--d:260ms">{hero.sub}</p>
+        <div class="hero__ctas rise" style="--d:340ms">
+          <a class="btn btn--primary btn--lg" href={site.cta}>{site.ctaLabel}<Icon name="arrow" class="arrow" /></a>
+          <a class="btn btn--ghost btn--lg" href="#como-funciona">{hero.ctaSecondary}</a>
+        </div>
+        <ul class="hero__proofs rise" style="--d:420ms">
+          {hero.proofs.map((p) => <li><Icon name="check" size={18} />{p}</li>)}
+        </ul>
+        <div class="rise hero__badges" style="--d:500ms"><StoreBadges size="sm" /></div>
+      </div>
+
+      <div class="hero__visual rise" style="--d:160ms">
+        <div class="slot hero__slot" data-slot="phone" aria-hidden="true">
+          <div class="slot__fb">
+            <Phone class="hero__phone" width="min(17rem, 56vw)">
+              <img src="/screens/hiven.webp" alt="" width="692" height="1524" loading="eager" fetchpriority="high" decoding="async" />
+            </Phone>
+          </div>
+          <div class="kpi kpi--a" data-kpi><small>Recompra in-app</small><strong>42%</strong><em>Loum</em></div>
+          <div class="kpi kpi--b" data-kpi><small>Faturamento 1º mês</small><strong>R$ 200 mil</strong><em>Sunkids</em></div>
+        </div>
+      </div>
+    </div>
+    <p class="hero__hint" aria-hidden="true"><span>Role para ver o push chegar</span><i></i></p>
+  </div>
+</section>
+
+<style>
+  .rise { animation: rise 0.8s var(--ease) both; animation-delay: var(--d, 0ms); }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+  .hero .clip > span { transform: translateY(112%); transition: none; animation: clipUp 1s var(--ease) both; animation-delay: var(--d, 0ms); }
+  @keyframes clipUp { to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .rise, .hero .clip > span { animation: none; transform: none; } }
+
+  .hero__in { display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 1rem; height: 100%; align-items: center; }
+  .hero__copy { display: grid; gap: 1.1rem; justify-items: start; align-content: center; }
+  .hero__sub { max-width: 36rem; }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .hero__proofs { display: flex; flex-wrap: wrap; gap: 0.6rem 1.5rem; font-size: var(--fs-small); font-weight: 500; color: var(--ink-600); }
+  .hero__proofs li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .hero__proofs :global(svg) { color: var(--blue); flex: none; }
+  .hero__visual { position: relative; display: grid; place-items: stretch; min-height: 0; height: 100%; }
+  .hero__slot { width: 100%; height: 100%; max-width: 34rem; margin-inline: auto; touch-action: pan-y; }
+  .hero__phone { transform: rotate(-3deg); }
+
+  .hero__bg { position: absolute; inset: 0; z-index: -1; overflow: hidden; background: #fff; }
+  .hero__bg::before, .hero__bg::after { content: ''; position: absolute; border-radius: 50%; filter: blur(2px); }
+  .hero__bg::before { width: 70rem; height: 46rem; right: -22rem; top: -20rem; background: radial-gradient(closest-side, rgb(21 93 252 / 0.13), rgb(21 93 252 / 0.05) 55%, transparent 100%); animation: drift-a 26s ease-in-out infinite alternate; }
+  .hero__bg::after { width: 44rem; height: 32rem; right: 6rem; top: 10rem; background: radial-gradient(closest-side, rgb(21 93 252 / 0.09), transparent 100%); animation: drift-b 32s ease-in-out infinite alternate; }
+  @keyframes drift-a { to { transform: translate(-7rem, 5rem) scale(1.08); } }
+  @keyframes drift-b { to { transform: translate(9rem, -6rem) scale(0.92); } }
+
+  .kpi { position: absolute; display: grid; gap: 0.1rem; padding: 0.8rem 1rem; background: var(--blue); color: #fff; box-shadow: var(--shadow-lg); opacity: 0; transform: translateY(10px) scale(0.96); transition: opacity 0.5s var(--ease), transform 0.7s var(--ease); z-index: 12; }
+  .kpi.is-in { opacity: 1; transform: none; }
+  .kpi small { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; }
+  .kpi strong { font-size: 1.6rem; font-weight: 500; letter-spacing: var(--track); line-height: 1; }
+  .kpi em { font-style: normal; font-size: 0.7rem; font-weight: 500; opacity: 0.9; }
+  .kpi--a { right: 0; top: 22%; }
+  .kpi--b { left: 0; bottom: 22%; background: var(--ink); }
+
+  .hero__hint { position: absolute; left: 50%; bottom: 1.25rem; translate: -50% 0; display: inline-flex; align-items: center; gap: 0.6rem; font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-500); transition: opacity 0.4s; }
+  .hero__hint i { width: 1px; height: 2rem; background: linear-gradient(var(--blue), transparent); animation: hint 1.6s ease-in-out infinite; transform-origin: top; }
+  @keyframes hint { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(0); transform-origin: bottom; } }
+  .hero.is-scrolled .hero__hint { opacity: 0; }
+
+  @media (min-width: 64em) {
+    .hero__in { grid-template-columns: 1.05fr 0.95fr; grid-template-rows: 1fr; gap: 2rem; }
+    .hero__copy { gap: 1.75rem; }
+    .hero__slot { height: min(100%, 44rem); }
+    .kpi--a { right: -6%; top: 20%; }
+    .kpi--b { left: -8%; bottom: 20%; }
+  }
+  @media (max-width: 63.99em) {
+    .hero__in { gap: 0.5rem; padding-bottom: 2.5rem; }
+    .hero__copy { gap: 0.8rem; }
+    .hero__sub { font-size: 0.98rem; max-width: 30rem; }
+    .hero__proofs, .hero__badges { display: none; }
+    .hero__ctas .btn { min-height: 3rem; padding-inline: 1.1rem; font-size: 0.92rem; }
+    .hero__slot { min-height: 16rem; }
+    .kpi { padding: 0.6rem 0.75rem; }
+    .kpi strong { font-size: 1.25rem; }
+    .kpi--a { top: 12%; right: 0; }
+    .kpi--b { bottom: 12%; left: 0; }
+    .hero__hint span { display: none; }
+    .hero__hint { bottom: 0.75rem; }
+  }
+  @media (max-height: 44em) and (max-width: 63.99em) { .hero__sub { display: none; } }
+  :global(html.no-gl) .hero { height: auto; }
+  :global(html.no-gl) .hero .pin__stage { position: static; height: auto; overflow: visible; padding: 2.5rem 0 4rem; }
+  :global(html.no-gl) .hero__slot { min-height: 34rem; }
+  :global(html.no-gl) .hero__hint { display: none; }
+  :global(html.no-gl) .kpi { opacity: 1; transform: none; }
+</style>

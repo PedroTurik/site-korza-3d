@@ -1,0 +1,129 @@
+---
+import { cases } from '../data/content';
+import Icon from './Icon.astro';
+import Phone from './Phone.astro';
+const pad = (n: number) => String(n).padStart(2, '0');
+const keys = ['loum', 'belletonn', 'pe-de-algodao', 'sunkids'];
+const units: Record<string, { n: number; label: string } | undefined> = {
+  Loum: { n: 42, label: '42 de cada 100 pedidos no app são recompras' },
+  Belletonn: { n: 27, label: '27 de cada 100 pessoas que abrem o push compram' },
+  'Pé de Algodão': { n: 5, label: '5 de cada 100 reais faturados vieram de um push' },
+  Sunkids: undefined,
+};
+const parse = (m: string) => {
+  const r = m.match(/^([^\d]*)([\d.]+(?:,\d+)?)(.*)$/)!;
+  const raw = r[2]; const dec = raw.includes(',') ? raw.split(',')[1].length : 0;
+  return { pre: r[1], raw, num: parseFloat(raw.replace('.', '').replace(',', '.')), dec, suf: r[3] };
+};
+---
+<section class="cases pin" id="cases" data-s3="cases" style="--len:4" data-active="0" aria-labelledby="cases-title">
+  <div class="pin__stage stage--paper">
+    <div class="container cases__in">
+      <header class="cases__head" data-reveal>
+        <div class="cases__title">
+          <p class="eyebrow">{cases.eyebrow}</p>
+          <h2 class="h2" id="cases-title">{cases.h2a} <span class="accent">{cases.h2b}</span></h2>
+        </div>
+        <div class="cases__nav">
+          <span class="cases__counter" aria-live="polite"><b data-current>01</b> / {pad(cases.items.length)}</span>
+          <span class="cases__dots" aria-hidden="true" data-dots>{cases.items.map((_, i) => <i class={i === 0 ? 'is-active' : ''}></i>)}</span>
+          <button type="button" class="cases__btn" data-prev aria-label="Case anterior" disabled><Icon name="arrow" class="flip" size={20} /></button>
+          <button type="button" class="cases__btn" data-next aria-label="Próximo case"><Icon name="arrow" size={20} /></button>
+        </div>
+      </header>
+
+      <div class="cases__body">
+        <ul class="cases__stack" aria-label="Cases de clientes">
+          {cases.items.map((c, i) => {
+            const m = parse(c.metric); const u = units[c.brand];
+            return (
+              <li class={`case ${i === 0 ? 'is-active' : ''}`} data-case={keys[i]}>
+                <div class="case__brand">
+                  <img src={c.logo} alt="" width="40" height="40" loading="lazy" decoding="async" />
+                  <span class="case__name">{c.brand}</span>
+                  <span class="tag tag--soft">{c.tag}</span>
+                </div>
+                <p class="case__metric num">{m.pre}<span data-count={m.num} data-dec={m.dec} data-delay="100">{m.raw}</span>{m.suf}</p>
+                <p class="case__label">{c.label}</p>
+                {u && (
+                  <div class="unit">
+                    <div class="unit__grid" aria-hidden="true">
+                      {Array.from({ length: 100 }, (_, k) => <i class={k < u.n ? 'on' : ''} style={k < u.n ? `--d:${250 + k * 18}ms` : undefined}></i>)}
+                    </div>
+                    <p class="unit__label">{u.label}</p>
+                  </div>
+                )}
+                <p class="case__text">{c.text}</p>
+              </li>
+            );
+          })}
+        </ul>
+        <div class="slot cases__slot" data-slot="phone" aria-hidden="true">
+          <div class="slot__fb"><Phone width="min(15rem, 46vw)"><img src="/screens/loum.webp" alt="" width="640" height="982" loading="lazy" decoding="async" /></Phone></div>
+        </div>
+      </div>
+      <p class="cases__extra small muted"><b>{cases.extra.split(':')[0]}:</b>{cases.extra.split(':')[1]}</p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cases__in { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 1rem; height: 100%; padding-block: 0.75rem 1.25rem; }
+  .cases__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1rem 3rem; }
+  .cases__title { display: grid; gap: 0.75rem; max-width: 40rem; }
+  .cases__nav { display: flex; align-items: center; gap: 0.5rem; }
+  .cases__counter { font-size: var(--fs-small); color: var(--ink-500); font-variant-numeric: tabular-nums; margin-right: 0.75rem; }
+  .cases__counter b { font-weight: 500; color: var(--ink); }
+  .cases__dots { display: flex; gap: 0.3rem; margin-right: 1rem; }
+  .cases__dots i { display: block; width: 1.25rem; height: 2px; background: var(--line-strong); transition: background 0.3s, width 0.3s var(--ease); }
+  .cases__dots i.is-active { background: var(--blue); width: 2rem; }
+  .cases__btn { display: grid; place-items: center; width: 3rem; height: 3rem; border: 1px solid var(--line-strong); border-radius: var(--radius-sm); color: var(--ink); transition: background 0.25s, color 0.25s, border-color 0.25s, opacity 0.25s; }
+  .cases__btn:hover { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .cases__btn:disabled { opacity: 0.35; pointer-events: none; }
+  .cases__btn :global(.flip) { transform: scaleX(-1); }
+
+  .cases__body { position: relative; display: grid; grid-template-rows: minmax(0, 1fr) auto; min-height: 0; gap: 1rem; }
+  .cases__stack { position: relative; min-height: 0; }
+  .case { position: absolute; inset: 0; display: grid; gap: 0.4rem; align-content: center; opacity: 0; transform: translateY(14px); transition: opacity 0.45s var(--ease), transform 0.6s var(--ease); pointer-events: none; }
+  .case.is-active { opacity: 1; transform: none; pointer-events: auto; transition-delay: 0.1s; }
+  .case__brand { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+  .case__brand img { width: 2.25rem; height: 2.25rem; border-radius: 8px; border: 1px solid var(--line); }
+  .case__name { font-weight: 500; letter-spacing: var(--track-snug); }
+  .case__metric { font-size: clamp(3.5rem, 2.5rem + 4vw, 6.5rem); color: var(--blue); white-space: nowrap; }
+  .case__label { font-size: 1rem; color: var(--ink-600); }
+  .case__text { font-size: var(--fs-small); color: var(--ink-500); margin-top: 0.5rem; max-width: 24rem; line-height: 1.5; }
+  .unit { display: grid; gap: 0.45rem; margin-top: 0.75rem; }
+  .unit__grid { display: grid; grid-template-columns: repeat(20, 8px); grid-auto-rows: 8px; gap: 2px; }
+  .unit__grid i { display: block; background: var(--paper-3); }
+  .unit__grid i.on { transition: background 0.25s var(--ease), transform 0.25s var(--ease); transition-delay: var(--d); transform: scale(0.8); }
+  .case.is-active .unit__grid i.on { background: var(--blue); transform: none; }
+  .unit__label { font-size: 0.72rem; color: var(--ink-500); font-weight: 500; }
+  .cases__slot { min-height: 12rem; }
+  .cases__extra b { font-weight: 500; color: var(--ink); }
+
+  @media (min-width: 64em) {
+    .cases__body { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; gap: 3rem; }
+    .cases__slot { height: 100%; }
+  }
+  @media (max-width: 63.99em) {
+    .cases__in { gap: 0.5rem; }
+    .cases__title .h2 { font-size: clamp(1.6rem, 6.5vw, 2.2rem); }
+    .cases__nav { display: none; }
+    .cases__slot { order: -1; min-height: 30svh; }
+    .cases__stack { min-height: 15rem; }
+    .case { align-content: start; gap: 0.25rem; }
+    .case__metric { font-size: clamp(2.75rem, 12vw, 3.75rem); }
+    .case__label { font-size: 0.9rem; }
+    .case__text { display: none; }
+    .unit__grid { grid-template-columns: repeat(20, 6px); grid-auto-rows: 6px; }
+    .cases__extra { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .unit__grid i.on { background: var(--blue); transform: none; transition: none; } }
+  /* no WebGL / reduced motion: plain flow, every case visible */
+  :global(html.no-gl) .cases { height: auto; }
+  :global(html.no-gl) .cases .pin__stage { position: static; height: auto; overflow: visible; padding-top: 0; }
+  :global(html.no-gl) .cases__nav { display: none; }
+  :global(html.no-gl) .cases__stack { display: grid; gap: 2.5rem; }
+  :global(html.no-gl) .case { position: static; opacity: 1; transform: none; pointer-events: auto; }
+  :global(html.no-gl) .case .unit__grid i.on { background: var(--blue); transform: none; }
+</style>

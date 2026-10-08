@@ -1,0 +1,268 @@
+---
+import { dashboard as d } from '../data/content';
+import Icon from './Icon.astro';
+import Phone from './Phone.astro';
+
+/* ILUSTRATIVO — consolidar em content.ts. Calibrado pelos prints reais do admin (Painel + Analytics, out/2026). */
+const ui = {
+  sidebar: [
+    { label: 'Painel', icon: 'layout' },
+    { label: 'Campanhas', icon: 'bell' },
+    { label: 'Analytics', icon: 'chart', active: true },
+    { label: 'Públicos', icon: 'users' },
+    { label: 'Vendas', icon: 'dollar' },
+    { label: 'Personalizar App', icon: 'palette' },
+  ],
+  kpis: [
+    { label: 'Downloads', v: 443, text: '443', icon: 'download', delay: 600 },
+    { label: 'Número de vendas', v: 151, text: '151', icon: 'bars', delay: 700 },
+    { label: 'Faturamento', v: 67018.7, dec: 2, prefix: 'R$ ', text: '67.018,70', icon: 'dollar', delay: 800 },
+  ],
+  // Faturamento por dia (30 pontos, escala 0–100) — pico no dia do lançamento, como no print real.
+  revenue: [22, 100, 54, 30, 24, 33, 20, 18, 14, 22, 27, 25, 19, 15, 12, 26, 29, 24, 20, 18, 24, 29, 20, 14, 19, 22, 18, 14, 27, 21],
+  comp: { pct: 44, total: 151, recompras: 66, slices: [
+    { id: 'recompra', label: 'Recompra no app', n: 38, v: 'R$ 16.906,06', color: '#155dfc' },
+    { id: 'migracao', label: 'Migração de canal', n: 28, v: 'R$ 12.208,31', color: '#0b41bb' },
+    { id: 'primeiro', label: 'Primeiro pedido', n: 85, v: 'R$ 37.904,33', color: '#c9d8ff' },
+  ] },
+  // Vendas por dia (30 barras, % da maior). Dia 22 = push "Um mimo para quem já é de casa".
+  daily: [30, 46, 24, 58, 38, 44, 70, 30, 48, 42, 60, 36, 46, 66, 32, 50, 56, 28, 44, 52, 38, 100, 72, 40, 58, 44, 68, 42, 52, 60],
+  pushDay: 21,
+};
+const r = 42, c = 2 * Math.PI * r;
+const seg = (n: number) => (c * n) / ui.comp.total;
+const sliceOffsets = ui.comp.slices.map((_, i) => ui.comp.slices.slice(0, i).reduce((a, s) => a + seg(s.n), 0));
+const W = 300, H = 72;
+const pts = ui.revenue.map((v, i) => `${(i / (ui.revenue.length - 1)) * W},${H - 4 - (v / 100) * (H - 10)}`);
+const linePath = `M${pts.join(' L')}`;
+const areaPath = `${linePath} L${W},${H} L0,${H} Z`;
+const hlMap: Record<string, string> = { 'Recompra no app': 'recompra', 'Migração de canal': 'migracao', 'Primeiro pedido': 'primeiro', 'Por campanha': 'campanha' };
+const bulletText: Record<string, string> = {
+  'Recompra no app': 'comprou duas ou mais vezes',
+  'Migração de canal': 'saiu do site, veio para o app',
+  'Primeiro pedido': 'cliente novo, pelo app',
+  'Por campanha': 'abertura, clique e venda de cada push',
+};
+const miniIcon: Record<string, string> = {
+  download: '<path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 19h16"/>',
+  bars: '<path d="M5 20V10M12 20V4M19 20v-7"/>',
+  dollar: '<path d="M12 2v20"/><path d="M17 6.5c-1-1.5-2.8-2-5-2-2.5 0-4.5 1.2-4.5 3.2 0 4.5 9.5 2 9.5 7 0 2.3-2.2 3.5-5 3.5-2.4 0-4.4-.8-5.2-2.5"/>',
+};
+---
+<section class="dash pin pin--desk" id="dashboard" data-s3="dash" style="--len:2.2" aria-labelledby="dash-title">
+  <div class="pin__stage stage--blue dash__stage">
+  <div class="container dash__wrap">
+  <div class="dash__panel" data-hl="">
+    <div class="dash__copy">
+      <p class="eyebrow eyebrow--light" data-reveal>{d.eyebrow}</p>
+      <h2 class="h2" id="dash-title" data-reveal style="--d:60ms">Desempenho do app na ponta do lápis.</h2>
+      <p class="lead" data-reveal style="--d:120ms">{d.text}</p>
+      <ul class="dash__bullets" data-reveal style="--d:180ms" aria-label="O que o dashboard mostra (passe o mouse para destacar no gráfico)">
+        {d.bullets.map(([t]) => (
+          <li><button type="button" class="dash__bullet" data-hl-for={hlMap[t]}><b>{t}</b><span>{bulletText[t]}</span></button></li>
+        ))}
+      </ul>
+    </div>
+
+    <div class="dash__visual" data-reveal style="--d:120ms">
+      <div class="ui ui--dash" role="img" aria-label="Dashboard Korza, tela Analytics: 443 downloads, 151 vendas e R$ 67.018,70 de faturamento nos últimos 30 dias; 44% dos pedidos são recompras ou migração de canal; o dia do push é o pico de vendas do mês">
+        <aside class="ui__side" aria-hidden="true">
+          <div class="ui__brand"><img src="/brand/korza-mark.svg" alt="" width="16" height="14" /> KORZA</div>
+          <ul>{ui.sidebar.map((s) => (
+            <li class={s.active ? 'is-active' : ''}>
+              {s.icon === 'dollar' ? <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" set:html={miniIcon.dollar} /> : <Icon name={s.icon as any} size={12} />}
+              {s.label}
+            </li>
+          ))}</ul>
+        </aside>
+        <main class="ui__main" aria-hidden="true">
+          <header><strong>Analytics</strong><span class="ui__filter">Últimos 30 dias</span></header>
+
+          <div class="ui__kpis">
+            {ui.kpis.map((k) => (
+              <div class="ui__kpi">
+                <small>{k.label}<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" set:html={miniIcon[k.icon]} /></small>
+                <b>{k.prefix}<span data-count={k.v} data-dec={k.dec ?? 0} data-delay={k.delay} data-dur="1300">{k.text}</span></b>
+                <em>Últimos 30 dias, pelo app</em>
+              </div>
+            ))}
+          </div>
+
+          <div class="ui__rev">
+            <div class="ui__card-head"><small>Faturamento</small><span class="ui__filter ui__filter--xs">Dia</span></div>
+            <svg class="rev" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none">
+              <path class="rev__area" d={areaPath} fill="url(#revg)" />
+              <path class="rev__line draw" style="--d:500ms" d={linePath} pathLength="1" fill="none" stroke="#155dfc" stroke-width="1.6" stroke-linejoin="round" vector-effect="non-scaling-stroke" />
+              <defs><linearGradient id="revg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#155dfc" stop-opacity="0.16" /><stop offset="1" stop-color="#155dfc" stop-opacity="0" /></linearGradient></defs>
+            </svg>
+            <span class="rev__tag pop" style="--d:1400ms">Lançamento</span>
+          </div>
+
+          <div class="ui__row">
+            <div class="ui__daily">
+              <div class="ui__card-head"><small>Vendas por dia</small><small class="ui__rec"><b data-count={ui.comp.recompras} data-delay="900">{ui.comp.recompras}</b> recompras</small></div>
+              <div class="ui__bars">
+                {ui.daily.map((v, i) => (
+                  <i class={`grow ${i === ui.pushDay ? 'is-push' : ''}`} style={`--v:${v}%; --d:${900 + i * 28}ms`}>
+                    {i === ui.pushDay && <span class="push-mark pop" style="--d:2300ms"><Icon name="bell" size={9} /> push</span>}
+                  </i>
+                ))}
+              </div>
+            </div>
+            <div class="ui__comp">
+              <div class="ui__card-head"><small>Composição dos pedidos</small><span class="tag tag--soft">Beta</span></div>
+              <div class="ui__comp-body">
+                <svg class="donut" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r={r} fill="none" stroke="#e6e8ee" stroke-width="10" />
+                  {ui.comp.slices.map((s, i) => (
+                    <circle class={`arc arc--${s.id}`} cx="50" cy="50" r={r} fill="none" stroke={s.color} stroke-width="10"
+                      stroke-dasharray={`${seg(s.n)} ${c}`} stroke-dashoffset={c} style={`--off:${-sliceOffsets[i]}; --d:${400 + i * 220}ms`} transform="rotate(-90 50 50)" />
+                  ))}
+                  <text x="50" y="48" text-anchor="middle" font-size="16" font-weight="500" fill="#0b0f19" letter-spacing="-0.5"><tspan data-count={ui.comp.pct} data-delay="500" data-dur="1200">{ui.comp.pct}</tspan>%</text>
+                  <text x="50" y="60" text-anchor="middle" font-size="6.5" fill="#5f6673">recompras</text>
+                </svg>
+                <ul class="legend">
+                  {ui.comp.slices.map((l, i) => (
+                    <li class={`legend__item legend__item--${l.id} pop`} style={`--c:${l.color}; --d:${700 + i * 160}ms`}><i></i><span>{l.label}</span><b>{l.n}</b><small>{l.v}</small></li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </main>
+      </div>
+
+      <div class="slot dash__slot" data-slot="phone" aria-hidden="true">
+        <div class="slot__fb"><Phone width="100%"><div class="lock"><div class="lock__time">14:05</div><div class="lock__notif"><span class="lock__icon"><img src="/clients/belletonn.webp" alt="" width="32" height="32" loading="lazy" /></span><div><b>{d.push.title}</b><p>{d.push.body}</p></div><em>agora</em></div></div></Phone></div>
+        <span class="kchip kchip--live dash__sale" data-sale><i></i>+1 venda via push · R$ 189,90</span>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+</section>
+
+<style>
+  .dash__wrap { height: 100%; display: grid; align-items: center; padding-block: 2rem 2.5rem; }
+  .dash__panel { display: grid; gap: 2.5rem; }
+  @media (min-width: 64em) { .dash__panel { grid-template-columns: 0.78fr 1.22fr; gap: 4rem; align-items: center; } .dash__wrap { padding-block: 0 1rem; } }
+  .dash__copy { display: grid; gap: 1.5rem; }
+  .dash__copy .lead { color: rgb(255 255 255 / 0.78); }
+
+  /* bullets → interactive legend */
+  .dash__bullets { display: grid; margin-top: 0.5rem; border-top: 1px solid rgb(255 255 255 / 0.2); }
+  .dash__bullet { display: grid; grid-template-columns: 9.5rem 1fr; gap: 1rem; width: 100%; padding: 0.8rem 0.5rem 0.8rem 0; margin-left: -0.5rem; padding-left: 0.5rem; text-align: left; border-bottom: 1px solid rgb(255 255 255 / 0.2); font-size: var(--fs-small); color: inherit; transition: background 0.25s var(--ease); position: relative; }
+  .dash__bullet::before { content: ''; position: absolute; left: 0; top: 0.8rem; bottom: 0.8rem; width: 2px; background: #fff; transform: scaleY(0); transition: transform 0.3s var(--ease); }
+  .dash__bullet:hover, .dash__bullet:focus-visible { background: rgb(255 255 255 / 0.08); outline: 0; }
+  .dash__bullet:hover::before, .dash__bullet:focus-visible::before { transform: none; }
+  .dash__bullet b { font-weight: 500; color: #fff; }
+  .dash__bullet span { color: rgb(255 255 255 / 0.72); }
+  .dash__bullets li:last-child .dash__bullet { border-bottom: 1px solid rgb(255 255 255 / 0.2); }
+
+  .dash__visual { position: relative; display: grid; gap: 1rem; }
+  @media (min-width: 64em) { .dash__visual { display: block; } }
+  .dash__slot { position: absolute; left: -3.5rem; bottom: -2.5rem; width: 11rem; height: 22rem; z-index: 3; }
+  .dash__sale { position: absolute; left: 100%; top: 38%; margin-left: 0.5rem; opacity: 0; transform: translateY(6px); transition: opacity 0.4s var(--ease), transform 0.5s var(--ease); }
+  .dash__sale.is-in { opacity: 1; transform: none; }
+  @media (max-width: 63.99em) { .dash__slot { left: auto; right: -0.5rem; bottom: -2rem; width: 7.5rem; height: 15rem; } .dash__sale { left: auto; right: 100%; margin: 0 0.5rem 0 0; top: 30%; } }
+  .dash__copy .h2 { font-size: clamp(2rem, 1.2rem + 2.6vw, 3.25rem); }
+
+  /* ---- mock ---- */
+  .ui { display: grid; grid-template-columns: 10rem 1fr; min-height: 24rem; }
+  .ui__side { background: #fbfbfc; border-right: 1px solid var(--line); padding: 1rem 0.6rem; display: grid; gap: 1rem; align-content: start; }
+  .ui__brand { display: flex; align-items: center; gap: 0.35rem; font-weight: 600; letter-spacing: -0.02em; font-size: 0.8rem; padding-left: 0.3rem; }
+  .ui__side ul { display: grid; gap: 0.1rem; }
+  .ui__side li { display: flex; align-items: center; gap: 0.45rem; padding: 0.42rem 0.55rem; border-radius: 6px; color: var(--ink-500); white-space: nowrap; }
+  .ui__side li :global(svg) { flex: none; opacity: 0.8; }
+  .ui__side li.is-active { background: var(--blue-100); color: var(--blue-700); font-weight: 500; }
+  .ui__main { padding: 0.9rem; display: grid; gap: 0.7rem; align-content: start; min-width: 0; }
+  .ui__main header { display: flex; justify-content: space-between; align-items: center; }
+  .ui__main header strong { font-size: 0.95rem; font-weight: 500; letter-spacing: -0.02em; }
+  .ui__filter { padding: 0.3rem 0.55rem; border: 1px solid var(--line); border-radius: 4px; color: var(--ink-500); }
+  .ui__filter--xs { padding: 0.15rem 0.4rem; font-size: 0.6rem; }
+  .ui__card-head { display: flex; justify-content: space-between; align-items: center; color: var(--ink-500); }
+  .ui__card-head .tag { font-size: 0.58rem; padding: 0.3rem 0.4rem; }
+
+  .ui__kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+  .ui__kpi { display: grid; gap: 0.15rem; padding: 0.65rem 0.7rem; border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+  .ui__kpi small { display: flex; justify-content: space-between; align-items: center; color: var(--ink-600); font-size: 0.66rem; }
+  .ui__kpi small svg { color: var(--ink-500); flex: none; }
+  .ui__kpi b { font-size: 1.1rem; font-weight: 500; letter-spacing: -0.03em; line-height: 1.2; white-space: nowrap; }
+  .ui__kpi em { font-style: normal; font-size: 0.58rem; color: var(--ink-400); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .ui__rev { position: relative; border: 1px solid var(--line); border-radius: 6px; padding: 0.65rem 0.7rem 0.5rem; display: grid; gap: 0.4rem; }
+  .rev { width: 100%; height: 4.2rem; overflow: visible; }
+  .rev__area { opacity: 0; transition: opacity 0.8s var(--ease) 1.2s; }
+  .is-on .rev__area { opacity: 1; }
+  .rev__tag { position: absolute; left: 2.9rem; top: 1.75rem; font-size: 0.55rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--blue-700); background: var(--blue-100); padding: 0.18rem 0.35rem; border-radius: 2px; }
+
+  .ui__row { display: grid; grid-template-columns: 1fr 1.15fr; gap: 0.6rem; }
+  .ui__comp { border: 1px solid var(--line); border-radius: 6px; padding: 0.65rem 0.7rem; display: grid; gap: 0.6rem; align-content: start; }
+  .ui__comp-body { display: grid; grid-template-columns: 5.25rem 1fr; gap: 0.75rem; align-items: center; }
+  .donut { width: 5.25rem; height: 5.25rem; }
+  .arc { transition: stroke-dashoffset 1.1s var(--ease), opacity 0.3s, stroke-width 0.3s; transition-delay: var(--d, 0ms), 0ms, 0ms; }
+  .is-on .arc { stroke-dashoffset: var(--off); }
+  .legend { display: grid; gap: 0.45rem; min-width: 0; }
+  .legend li { display: grid; grid-template-columns: auto 1fr auto; column-gap: 0.4rem; align-items: center; transition: opacity 0.3s; }
+  .legend i { width: 0.55rem; height: 0.55rem; border-radius: 2px; background: var(--c); }
+  .legend span { color: var(--ink-600); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .legend b { font-weight: 500; }
+  .legend small { grid-column: 2 / -1; color: var(--ink-400); font-size: 0.58rem; margin-top: -0.1rem; }
+
+  .ui__daily { display: grid; gap: 0.5rem; padding: 0.65rem 0.7rem; border: 1px solid var(--line); border-radius: 6px; align-content: start; }
+  .ui__rec b { font-weight: 500; color: var(--ink); }
+  .ui__bars { display: flex; align-items: flex-end; gap: 2.5px; height: 5.6rem; padding-top: 1.1rem; }
+  .ui__bars i { position: relative; flex: 1; height: var(--v); background: var(--blue-100); transition: transform 0.9s var(--ease) var(--d, 0ms), background 0.3s, opacity 0.3s; }
+  .ui__bars i.is-push { background: var(--blue); }
+  .push-mark { position: absolute; bottom: calc(100% + 0.3rem); left: 50%; translate: -50% 0; display: inline-flex; align-items: center; gap: 0.2rem; white-space: nowrap; font-size: 0.55rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #fff; background: var(--ink); padding: 0.2rem 0.35rem; border-radius: 2px; }
+  .push-mark::after { content: ''; position: absolute; top: 100%; left: 50%; translate: -50% 0; width: 1px; height: 0.3rem; background: var(--ink); }
+
+  /* highlight states driven by the copy bullets */
+  .dash__panel[data-hl="recompra"] .arc:not(.arc--recompra), .dash__panel[data-hl="recompra"] .legend__item:not(.legend__item--recompra),
+  .dash__panel[data-hl="migracao"] .arc:not(.arc--migracao), .dash__panel[data-hl="migracao"] .legend__item:not(.legend__item--migracao),
+  .dash__panel[data-hl="primeiro"] .arc:not(.arc--primeiro), .dash__panel[data-hl="primeiro"] .legend__item:not(.legend__item--primeiro) { opacity: 0.25; }
+  .dash__panel[data-hl="recompra"] .arc--recompra, .dash__panel[data-hl="migracao"] .arc--migracao, .dash__panel[data-hl="primeiro"] .arc--primeiro { stroke-width: 13; }
+  .dash__panel[data-hl="campanha"] .ui__bars i:not(.is-push) { opacity: 0.35; }
+  .dash__panel[data-hl="campanha"] .push-mark { background: var(--blue); }
+  .dash__panel[data-hl="campanha"] .push-mark::after { background: var(--blue); }
+  .dash__panel[data-hl="campanha"] .lock__notif { outline: 2px solid rgb(255 255 255 / 0.6); outline-offset: 2px; }
+  .dash__panel:not([data-hl=""]) .ui__comp, .dash__panel:not([data-hl=""]) .ui__daily { transition: border-color 0.3s; }
+  .dash__panel[data-hl="recompra"] .ui__comp, .dash__panel[data-hl="migracao"] .ui__comp, .dash__panel[data-hl="primeiro"] .ui__comp, .dash__panel[data-hl="campanha"] .ui__daily { border-color: var(--blue); }
+
+  @media (max-width: 40em) {
+    .ui { grid-template-columns: 1fr; }
+    .ui__side { display: none; }
+    .ui__kpis { grid-template-columns: 1fr 1fr; }
+    .ui__kpis .ui__kpi:last-child { grid-column: 1 / -1; }
+    .ui__row { grid-template-columns: 1fr; }
+    .dash__bullet { grid-template-columns: 7.5rem 1fr; }
+  }
+
+  .lock { position: absolute; inset: 0; padding: 2.4rem 0.6rem 0; color: #fff; background: linear-gradient(160deg, #1c2a52, #0b0f19 70%); }
+  .lock__time { font-size: 1.6rem; font-weight: 300; letter-spacing: -0.03em; text-align: center; margin-bottom: 0.75rem; }
+  .lock__notif { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 0.5rem; padding: 0.55rem 0.6rem; font-size: 0.6rem; border-radius: 14px; background: rgb(255 255 255 / 0.16); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); font-size: 0.75rem; line-height: 1.3; transition: outline-color 0.3s; }
+  .lock__icon img { width: 2rem; height: 2rem; border-radius: 8px; }
+  .lock__notif b { display: block; font-weight: 600; }
+  .lock__notif p { opacity: 0.85; }
+  .lock__notif em { font-style: normal; font-size: 0.65rem; opacity: 0.7; }
+  :global(html.no-gl) .dash { height: auto; }
+  :global(html.no-gl) .dash .pin__stage { position: static; height: auto; overflow: visible; padding-top: 0; }
+  :global(html.no-gl) .dash__wrap { padding-block: var(--section-y) calc(var(--section-y) * 0.9); }
+</style>
+
+<script>
+  // Bullets in the copy highlight the matching part of the mock (hover/focus). ~300B.
+  const panel = document.querySelector<HTMLElement>('#dashboard .dash__panel');
+  if (panel) {
+    const set = (v: string) => panel.setAttribute('data-hl', v);
+    panel.querySelectorAll<HTMLButtonElement>('[data-hl-for]').forEach((b) => {
+      const v = b.dataset.hlFor || '';
+      b.addEventListener('mouseenter', () => set(v));
+      b.addEventListener('focus', () => set(v));
+      b.addEventListener('mouseleave', () => set(''));
+      b.addEventListener('blur', () => set(''));
+      b.addEventListener('click', () => set(panel.getAttribute('data-hl') === v ? '' : v));
+    });
+  }
+</script>

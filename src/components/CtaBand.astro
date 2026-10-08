@@ -1,0 +1,38 @@
+---
+import { site } from '../data/site';
+import { ctaBand } from '../data/content';
+import Icon from './Icon.astro';
+import Phone from './Phone.astro';
+import StoreBadges from './StoreBadges.astro';
+---
+<section class="cta section" id="cta" data-s3="cta" aria-labelledby="cta-title">
+  <div class="container">
+    <div class="cta__box panel panel--blue" data-reveal>
+      <div class="cta__copy">
+        <h2 class="h2" id="cta-title">Seu próximo canal de vendas<br />cabe no bolso do cliente.</h2>
+        <p class="lead">{ctaBand.sub}</p>
+        <div class="cta__actions">
+          <a class="btn btn--white btn--lg" href={site.cta}>{site.ctaLabel}<Icon name="arrow" class="arrow" /></a>
+          <StoreBadges size="sm" theme="light" />
+        </div>
+        <ul class="cta__micro">{ctaBand.micro.map((m) => <li>{m}</li>)}</ul>
+      </div>
+      <div class="slot cta__slot" data-slot="phone" aria-hidden="true">
+        <div class="slot__fb"><Phone width="min(15rem, 56vw)"><img src="/screens/sunkids.webp" alt="" width="692" height="1524" loading="lazy" decoding="async" /></Phone></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta { padding-top: 0; }
+  .cta__box { display: grid; gap: 2rem; padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 5vw, 5rem); overflow: visible; }
+  @media (min-width: 64em) { .cta__box { grid-template-columns: 1.15fr 0.85fr; align-items: center; min-height: 32rem; } }
+  .cta__copy { display: grid; gap: 1.5rem; justify-items: start; }
+  .cta__copy .lead { color: rgb(255 255 255 / 0.82); max-width: 30rem; }
+  .cta__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; margin-top: 0.5rem; }
+  .cta__micro { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; font-size: var(--fs-small); color: rgb(255 255 255 / 0.75); }
+  .cta__micro li::before { content: '—'; margin-right: 0.5rem; }
+  .cta__slot { min-height: 24rem; }
+  @media (max-width: 63.99em) { .cta__slot { min-height: 20rem; } }
+</style>

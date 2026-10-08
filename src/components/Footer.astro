@@ -1,0 +1,56 @@
+---
+import { site } from '../data/site';
+import { footer } from '../data/content';
+import Logo from './Logo.astro';
+import Icon from './Icon.astro';
+---
+<footer class="foot">
+  <div class="container">
+    <div class="foot__panel panel panel--navy">
+      <div class="foot__top">
+        <div class="foot__brand">
+          <Logo height={28} variant="white" />
+          <p>{footer.tagline}</p>
+          <div class="foot__social">
+            <a href={site.instagram} aria-label="Korza no Instagram" rel="noopener" target="_blank"><Icon name="instagram" size={18} /></a>
+            <a href={site.linkedin} aria-label="Korza no LinkedIn" rel="noopener" target="_blank"><Icon name="linkedin" size={18} /></a>
+          </div>
+        </div>
+        {footer.cols.map((c) => (
+          <nav class="foot__col" aria-label={c.title}>
+            <p class="foot__title">{c.title}</p>
+            <ul>{c.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+          </nav>
+        ))}
+        <div class="foot__col foot__cta">
+          <p class="foot__title">Comece agora</p>
+          <p class="small">Crie a conta, clique em Lançar. Em poucos dias, sua loja está nas duas lojas de aplicativos.</p>
+          <a class="btn btn--white" href={site.cta}>{site.ctaLabel}<Icon name="arrow" class="arrow" /></a>
+        </div>
+      </div>
+      <div class="foot__bottom">
+        <p>{footer.legal}</p>
+        <p>{footer.copyright}</p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .foot { padding-bottom: 1.5rem; }
+  .foot__panel { padding: clamp(2.5rem, 5vw, 4.5rem) clamp(1.5rem, 4vw, 4rem) 1.75rem; }
+  .foot__top { display: grid; gap: 2.5rem; }
+  @media (min-width: 48em) { .foot__top { grid-template-columns: 1.4fr 0.7fr 0.7fr 0.7fr 1.3fr; gap: 2rem; } }
+  .foot__brand { display: grid; gap: 1rem; justify-items: start; align-content: start; }
+  .foot__brand p { max-width: 18rem; color: rgb(255 255 255 / 0.7); }
+  .foot__social { display: flex; gap: 0.5rem; }
+  .foot__social a { display: grid; place-items: center; width: 2.5rem; height: 2.5rem; border: 1px solid rgb(255 255 255 / 0.25); color: #fff; transition: background 0.2s, color 0.2s; }
+  .foot__social a:hover { background: #fff; color: var(--navy); }
+  .foot__col { display: grid; gap: 0.75rem; align-content: start; justify-items: start; }
+  .foot__title { font-weight: 500; font-size: var(--fs-small); color: #fff; }
+  .foot__col ul { display: grid; gap: 0.5rem; }
+  .foot__col a:not(.btn) { color: rgb(255 255 255 / 0.7); font-size: 0.95rem; transition: color 0.2s; }
+  .foot__col a:not(.btn):hover { color: #fff; }
+  .foot__cta p.small { color: rgb(255 255 255 / 0.7); }
+  .foot__bottom { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.5rem 1.5rem; margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid rgb(255 255 255 / 0.2); font-size: var(--fs-xs); color: rgb(255 255 255 / 0.6); }
+</style>

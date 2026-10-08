@@ -1,0 +1,128 @@
+---
+import '../styles/global.css';
+import Analytics from '../components/Analytics.astro';
+import fontUrl from '@fontsource-variable/plus-jakarta-sans/files/plus-jakarta-sans-latin-wght-normal.woff2?url';
+
+interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  ogImage?: string;
+  noindex?: boolean;
+  jsonLd?: unknown[];
+}
+
+const {
+  title,
+  description,
+  canonical = Astro.site?.toString() ?? 'https://www.korza.com.br/',
+  ogImage = '/og-image.png',
+  noindex = false,
+  jsonLd = [],
+} = Astro.props;
+
+const ogAbs = new URL(ogImage, Astro.site ?? 'https://www.korza.com.br').toString();
+---
+
+<!doctype html>
+<html lang="pt-BR" class="no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex ? <meta name="robots" content="noindex, nofollow" /> : <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
+    <meta name="theme-color" content="#155dfc" />
+    <meta name="color-scheme" content="light" />
+    <meta name="author" content="Korza" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Korza" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogAbs} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Korza — aplicativo nativo para o seu e-commerce" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogAbs} />
+
+    <link rel="preload" as="font" type="font/woff2" href={fontUrl} crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preconnect" href="https://admin.korza.app" />
+
+    {jsonLd.map((block) => <script type="application/ld+json" set:html={JSON.stringify(block)} />)}
+
+    <script is:inline>document.documentElement.classList.remove('no-js');</script>
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+    <slot />
+    <Analytics />
+    <script>import '../three/main';</script>
+    <script>
+      // Motion runtime v3 — reveal, scenes, count-up. ~1.5KB. Respects reduced motion; no-JS falls back to visible.
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const reveals = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const scenes = document.querySelectorAll<HTMLElement>('[data-scene]');
+      const counts = document.querySelectorAll<HTMLElement>('[data-count]');
+      const ok = 'IntersectionObserver' in window;
+
+      // count-up: SSR text is the final value; animate 0 → value once visible (or once the enclosing scene is on).
+      const nf = (dec: number) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+      const ease = (t: number) => 1 - Math.pow(2, -10 * t);
+      const runCount = (el: HTMLElement) => {
+        if (el.dataset.done) return; el.dataset.done = '1';
+        const to = parseFloat(el.dataset.count || '0'); const dec = parseInt(el.dataset.dec || '0', 10);
+        const dur = parseInt(el.dataset.dur || '1400', 10); const delay = parseInt(el.dataset.delay || '0', 10);
+        const f = nf(dec); const final = f.format(to);
+        el.style.minWidth = el.getBoundingClientRect().width + 'px'; el.style.display = 'inline-block';
+        if (reduce) { el.textContent = final; return; }
+        el.textContent = f.format(0);
+        let t0 = 0;
+        const step = (ts: number) => {
+          if (!t0) t0 = ts; const p = Math.min(1, (ts - t0) / dur);
+          el.textContent = p < 1 ? f.format(to * ease(p)) : final;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        setTimeout(() => requestAnimationFrame(step), delay);
+      };
+
+      (window as any).__kCount = (root: HTMLElement) => root.querySelectorAll<HTMLElement>('[data-count]').forEach(runCount);
+      if (reduce || !ok) {
+        reveals.forEach((el) => el.classList.add('is-in'));
+        scenes.forEach((el) => el.classList.add('is-on'));
+        counts.forEach(runCount);
+      } else {
+        const io = new IntersectionObserver((entries) => {
+          for (const e of entries) if (e.isIntersecting) { (e.target as HTMLElement).classList.add('is-in'); io.unobserve(e.target); }
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+        reveals.forEach((el) => io.observe(el));
+
+        const so = new IntersectionObserver((entries) => {
+          for (const e of entries) if (e.isIntersecting) {
+            const el = e.target as HTMLElement; el.classList.add('is-on'); so.unobserve(el);
+            el.querySelectorAll<HTMLElement>('[data-count]').forEach(runCount);
+          }
+        }, { threshold: 0.35 });
+        scenes.forEach((el) => so.observe(el));
+
+        const co = new IntersectionObserver((entries) => {
+          for (const e of entries) if (e.isIntersecting) { runCount(e.target as HTMLElement); co.unobserve(e.target); }
+        }, { threshold: 0.6 });
+        counts.forEach((el) => { if (!el.closest('[data-scene]')) co.observe(el); });
+      }
+    </script>
+  </body>
+</html>

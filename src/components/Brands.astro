@@ -1,0 +1,56 @@
+---
+import { integrations } from '../data/content';
+import Phone from './Phone.astro';
+const clients = ['loum','belletonn','pe-de-algodao','sunkids','consolatio','hiven','modernlar','dom','client-02','client-04','armazem-dos-chinelos','client-06','a22-sneakers','d1-fitness','alurra','cross-crown','green-is-good','gum','mahdri','betterlife','dona-rica','ginga','gabriela-guth','client-03'];
+---
+<section class="brands pin" id="marcas" data-s3="brands" style="--len:2.2" aria-labelledby="brands-title">
+  <div class="pin__stage stage--paper">
+    <div class="container brands__in">
+      <header class="brands__head">
+        <p class="eyebrow" data-reveal>Quem já lançou</p>
+        <h2 class="h2" id="brands-title" data-reveal style="--d:60ms"><span class="accent"><span data-count="60">60</span>+</span> e-commerces vendem pelo próprio app.</h2>
+        <p class="lead brands__sub" data-reveal style="--d:120ms">O mesmo telefone, a sua marca. Loum, Belletonn, Pé de Algodão, Sunkids e dezenas de lojas já têm o app no bolso do cliente.</p>
+      </header>
+
+      <div class="slot brands__slot" data-slot="phone" aria-hidden="true">
+        <div class="slot__fb"><Phone width="min(13rem, 46vw)"><img src="/screens/loum.webp" alt="" width="640" height="982" loading="lazy" decoding="async" /></Phone></div>
+      </div>
+      <ul class="brands__fb" aria-label="Marcas que já vendem pelo próprio app">
+        {clients.map((c) => <li><img src={`/clients/${c}.webp`} alt="" width="48" height="48" loading="lazy" decoding="async" /></li>)}
+      </ul>
+
+      <div class="integ" data-reveal>
+        <p class="integ__label">Integrado às principais plataformas de e-commerce do Brasil</p>
+        <ul class="integ__list">
+          {integrations.map((p) => <li><img src={`/integrations/${p.file}.svg`} alt={p.name} height="28" loading="lazy" decoding="async" /></li>)}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .brands__in { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; gap: 1rem; padding-block: 1rem 1.5rem; }
+  .brands__head { display: grid; gap: 0.9rem; justify-items: center; text-align: center; }
+  .brands__head .h2 { max-width: 22ch; }
+  .brands__sub { max-width: 36rem; margin-inline: auto; }
+  .brands__slot { min-height: 12rem; }
+  .brands__fb { display: none; }
+  html:not(.has-gl) .brands__fb { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; max-width: 40rem; margin-inline: auto; align-self: center; }
+  html:not(.has-gl) .brands__slot { display: none; }
+  .brands__fb img { width: 3rem; height: 3rem; border-radius: 12px; border: 1px solid var(--line); background: #fff; }
+  .integ { display: grid; gap: 1rem; justify-items: center; }
+  .integ__label { font-size: var(--fs-small); font-weight: 500; color: var(--ink-500); text-align: center; }
+  .integ__list { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0.8rem 2rem; }
+  .integ__list img { height: 1.6rem; width: auto; max-width: 8rem; filter: grayscale(1) contrast(0.9) opacity(0.6); transition: filter 0.3s; }
+  .integ__list li:hover img { filter: none; }
+  @media (max-width: 63.99em) {
+    .brands__head .h2 { font-size: clamp(1.75rem, 7vw, 2.4rem); }
+    .brands__sub { display: none; }
+    .integ__list { gap: 0.6rem 1.2rem; }
+    .integ__list img { height: 1.2rem; max-width: 5.5rem; }
+  }
+  :global(html.no-gl) .brands { height: auto; }
+  :global(html.no-gl) .brands .pin__stage { position: static; height: auto; overflow: visible; padding-top: 0; }
+  :global(html.no-gl) .brands__in { padding-block: calc(var(--section-y) * 0.6); gap: 2rem; }
+</style>

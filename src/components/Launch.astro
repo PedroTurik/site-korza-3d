@@ -1,0 +1,101 @@
+---
+import { launch } from '../data/content';
+import { site } from '../data/site';
+import Icon from './Icon.astro';
+import Phone from './Phone.astro';
+const swatches = [['#155dfc', 'Azul'], ['#0b0f19', 'Preto'], ['#5a3d2b', 'Marrom'], ['#f0a6b9', 'Rosa'], ['#12b76a', 'Verde']];
+/* ILUSTRATIVO */
+const ruler = { days: 14, live: 9, items: '1.248' };
+---
+<section class="launch pin" id="como-funciona" data-s3="launch" style="--len:3.4" data-active="0" aria-labelledby="launch-title">
+  <div class="pin__stage stage--ink">
+    <div class="container launch__in">
+      <div class="launch__copy">
+        <p class="eyebrow eyebrow--light" data-reveal>{launch.eyebrow}</p>
+        <h2 class="h2" id="launch-title" data-reveal style="--d:60ms">{launch.h2a} <span class="launch__dim">{launch.h2b}</span></h2>
+
+        <ol class="steps" data-reveal style="--d:120ms">
+          {launch.steps.map((s, i) => (
+            <li class="step" data-step={i}>
+              <span class="step__n label">{s.n}</span>
+              <div class="step__body">
+                <h3>{s.title}</h3>
+                <p>{s.text}</p>
+                <div class="step__extra">
+                  {i === 0 && <span class="sync"><i></i>Sincronizando produtos… <b>{ruler.items} itens</b></span>}
+                  {i === 1 && (
+                    <div class="swatches" role="group" aria-label="Escolha a cor do app">
+                      {swatches.map(([c, n]) => <button type="button" class="swatch" data-swatch={c} style={`--c:${c}`} aria-pressed={c === '#155dfc' ? 'true' : 'false'} aria-label={`Cor ${n}`}></button>)}
+                      <span class="swatches__hint">Toque numa cor</span>
+                    </div>
+                  )}
+                  {i === 2 && <span class="kchip kchip--live"><i></i>Dia {ruler.live} · Publicado na App Store e no Google Play</span>}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ol>
+
+        <div class="ruler" role="img" aria-label={`Linha do tempo: app publicado no dia ${ruler.live} de um prazo máximo de ${ruler.days} dias úteis`}>
+          <span>Dia 1</span>
+          <div class="scrub"><i></i></div>
+          <span>Dia {ruler.days}</span>
+        </div>
+        <a class="btn btn--white launch__cta" href={site.cta}>{site.ctaLabel}<Icon name="arrow" class="arrow" /></a>
+      </div>
+
+      <div class="slot launch__slot" data-slot="phone" aria-hidden="true">
+        <div class="slot__fb"><Phone width="min(15rem, 50vw)"><img src="/screens/hiven.webp" alt="" width="692" height="1524" loading="lazy" decoding="async" /></Phone></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .launch__in { display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 1rem; height: 100%; padding-block: 0.5rem 1.5rem; }
+  .launch__copy { display: grid; gap: 1.25rem; align-content: center; min-width: 0; }
+  .launch__dim { color: rgb(255 255 255 / 0.45); }
+  .steps { display: grid; gap: 0.25rem; }
+  .step { display: grid; grid-template-columns: 2.5rem 1fr; gap: 0.75rem; padding: 0.9rem 0; border-top: 1px solid rgb(255 255 255 / 0.14); opacity: 0.38; transition: opacity 0.5s var(--ease); }
+  .step__n { color: var(--blue); padding-top: 0.3rem; }
+  .step__body { display: grid; gap: 0.35rem; }
+  .step h3 { font-size: 1.25rem; font-weight: 500; letter-spacing: var(--track-snug); }
+  .step p { color: rgb(255 255 255 / 0.7); font-size: 0.95rem; max-width: 26rem; }
+  .step__extra { display: grid; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.6s var(--ease), opacity 0.5s var(--ease), margin 0.5s; }
+  .launch[data-active="0"] .step[data-step="0"], .launch[data-active="1"] .step[data-step="1"], .launch[data-active="2"] .step[data-step="2"] { opacity: 1; }
+  .launch[data-active="0"] .step[data-step="0"] .step__extra, .launch[data-active="1"] .step[data-step="1"] .step__extra, .launch[data-active="2"] .step[data-step="2"] .step__extra { max-height: 5rem; opacity: 1; margin-top: 0.5rem; }
+  .sync { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: rgb(255 255 255 / 0.7); }
+  .sync b { font-weight: 500; color: #fff; }
+  .sync i { width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--blue); animation: blink 1.2s ease-in-out infinite; }
+  @keyframes blink { 50% { opacity: 0.3; } }
+  .swatches { display: flex; align-items: center; gap: 0.5rem; }
+  .swatch { width: 1.75rem; height: 1.75rem; background: var(--c); border-radius: var(--radius-xs); border: 1px solid rgb(255 255 255 / 0.3); transition: transform 0.25s var(--ease), box-shadow 0.25s; }
+  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--ink), 0 0 0 4px #fff; transform: scale(1.1); }
+  .swatches__hint { margin-left: 0.5rem; font-size: 0.75rem; color: rgb(255 255 255 / 0.55); }
+  .ruler { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; font-size: var(--fs-xs); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(255 255 255 / 0.55); }
+  .launch__cta { justify-self: start; }
+  .launch__slot { min-height: 14rem; }
+  @media (min-width: 64em) {
+    .launch__in { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; gap: 3rem; }
+    .launch__copy { gap: 1.5rem; }
+    .step { padding: 1.1rem 0; }
+  }
+  @media (max-width: 63.99em) {
+    .launch__in { grid-template-rows: minmax(0, 1fr) auto; }
+    .launch__slot { order: -1; min-height: 34svh; }
+    .launch__copy { gap: 0.75rem; }
+    .launch__copy .h2 { font-size: clamp(1.6rem, 6.5vw, 2.2rem); }
+    .step { display: none; border-top: 0; padding: 0.25rem 0; }
+    .launch[data-active="0"] .step[data-step="0"], .launch[data-active="1"] .step[data-step="1"], .launch[data-active="2"] .step[data-step="2"] { display: grid; }
+    .step h3 { font-size: 1.1rem; }
+    .step p { font-size: 0.88rem; }
+    .launch__cta { display: none; }
+  }
+  :global(html.no-gl) .launch { height: auto; }
+  :global(html.no-gl) .launch .pin__stage { position: static; height: auto; overflow: visible; padding-top: 0; }
+  :global(html.no-gl) .launch__in { padding-block: var(--section-y); }
+  :global(html.no-gl) .step { display: grid; opacity: 1; }
+  :global(html.no-gl) .step__extra { max-height: none; opacity: 1; margin-top: 0.5rem; }
+  :global(html.no-gl) .scrub > i { transform: scaleX(0.64); }
+  :global(html.no-gl) .launch__slot { min-height: 26rem; order: 0; }
+</style>
